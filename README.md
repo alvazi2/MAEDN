@@ -61,6 +61,13 @@ notebook to reproduce them.
   does best, but the edge over the fair 25% is only ~**+0.1 to +1.8 pp**. It is
   statistically significant (chi-square) for decisive strategies like `runahead`
   and `nice`, and negligible for pure-luck `random` play.
+- **`random` is weak because of inefficiency, not pacifism.** The random
+  baseline loses badly (e.g. `nice` beats it ~2:1) even though it actually
+  *captures more* than `nice`. The decisive factor is move efficiency: `nice`'s
+  tie-break races its lead figure and banks figures into the permanently-safe
+  goal lane, whereas `random` scatters its pips, leaving figures loitering where
+  one capture undoes ~40 fields of progress. The capture-ignoring `runahead`
+  wins ~50% against three `random` players purely by advancing efficiently.
 - **A published strategy guide's tactics are strong — but not quite optimal.**
   The `optimal` strategy follows the actionable advice from a bayern3.de guide:
   capture whenever possible, keep a >6-field safety lead, and race the leading
