@@ -142,37 +142,43 @@ class DefensiveStrategy(Strategy):
 
 
 class OptimalStrategy(Strategy):
-    """Composite 'expert' play distilled from popular strategy guides.
+    """Composite play following a published strategy guide (bayern3.de).
 
-    Those guides agree on a handful of priorities -- capture aggressively, get
-    figures out of home for flexibility, keep figures out of danger, and develop
-    all figures evenly rather than racing a single one. This strategy layers them
-    in priority order (the forced enter-on-6 / vacate-A rules are already applied
+    The guide's actionable rules, mapped to a 4-player game (its social /
+    colour-choice / psychological tips don't translate to engine moves):
+
+    * **Capture whenever you can** (rule 3).
+    * **Keep your figures out of reach** -- aim for a >6-field lead so a pursuer
+      can't hit you (rule 5); rescue a figure that has fallen into danger.
+    * **Race the leading figure** -- push the most-advanced figure fastest
+      (rule 7) rather than bunching figures up where one roll threatens several
+      (rule 6).
+
+    Priority order (the forced enter-on-6 / vacate-A rules are already applied
     upstream, so this only orders the genuinely free choices):
 
     1. **Capture** the most-advanced opponent when possible.
-    2. **Deploy** a new figure when bringing one out is an option.
-    3. **Rescue** a currently-threatened figure, preferring a safe destination.
-    4. **Advance** otherwise -- prefer a safe landing square, and break ties by
-       moving the rearmost figure so the group stays spread and flexible.
+    2. **Rescue** a currently-threatened figure to a safe square; among those,
+       move the most-advanced one.
+    3. **Race**: advance a figure, preferring a safe landing square and, among
+       equally safe moves, the most-advanced (front-running) figure.
 
-    It is "optimal" only in the sense of combining the commonly-recommended
+    It is "optimal" only in the sense of following the guide's recommended
     tactics; it is a heuristic, not a game-theoretic optimum.
     """
 
     name = "optimal"
 
     def choose(self, state, player, candidates, rng):
+        # 1. Capture the most-advanced opponent (rule 3).
         captures = [m for m in candidates if m.is_capture]
         if captures:
             return _pick(
                 captures, lambda m: state.figures[m.captured[0]][m.captured[1]], rng
             )
 
-        entries = [m for m in candidates if m.is_entry]
-        if entries:
-            return rng.choice(entries)
-
+        # 2. Rescue a figure that is within an opponent's reach (rule 5),
+        #    preferring a destination that is itself safe.
         rescues = [
             m
             for m in candidates
@@ -180,19 +186,15 @@ class OptimalStrategy(Strategy):
             and _threatened(state, player, m.from_progress)
         ]
         if rescues:
-            return _pick(
-                rescues,
-                lambda m: 0 if _threatened(state, player, m.to_progress) else 1,
-                rng,
-            )
+            safe = [m for m in rescues if not _threatened(state, player, m.to_progress)]
+            return _pick(safe or rescues, lambda m: m.from_progress, rng)
 
-        # Prefer a safe landing; among equally (un)safe moves, advance the
-        # rearmost figure to develop the group evenly.
+        # 3. Otherwise race the leading figure (rule 7) to a safe square (rule 5).
         return _pick(
             candidates,
             lambda m: (
                 0 if _threatened(state, player, m.to_progress) else 1,
-                -m.from_progress,
+                m.from_progress,
             ),
             rng,
         )

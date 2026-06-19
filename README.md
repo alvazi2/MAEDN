@@ -38,7 +38,7 @@ print(analysis.game_length_stats(df))  # avg / median game length
 | `random`    | uniform choice among legal moves (baseline)                       |
 | `runahead`  | always advance the figure that is furthest along                  |
 | `defensive` | get figures out of home, rescue threatened figures, stay compact  |
-| `optimal`   | composite from strategy guides: capture, deploy, rescue, spread    |
+| `optimal`   | bayern3 guide: capture, keep figures safe, race the leading figure |
 
 Each of the four seats is configured independently, so any mix is allowed
 (`["mean", "mean", "nice", "nice"]` for a 2-vs-2 study, etc.).
@@ -61,13 +61,15 @@ notebook to reproduce them.
   does best, but the edge over the fair 25% is only ~**+0.1 to +1.8 pp**. It is
   statistically significant (chi-square) for decisive strategies like `runahead`
   and `nice`, and negligible for pure-luck `random` play.
-- **"Spread out and play safe" does not pay off here.** The `optimal` strategy
-  implements the composite advice from popular strategy guides (capture, deploy,
-  rescue threatened figures, develop all figures evenly). It does *not* beat pure
-  `mean` — in a 4-way mix it lands around or just below its fair share, and
-  head-to-head against `mean` it loses clearly. The simulation's verdict is that
-  the guides' aggression advice holds, but **racing the leading figure beats
-  spreading evenly**, consistent with `runahead` outperforming `defensive`.
+- **A published strategy guide's tactics are strong — but not quite optimal.**
+  The `optimal` strategy follows the actionable advice from a bayern3.de guide:
+  capture whenever possible, keep a >6-field safety lead, and race the leading
+  figure (rather than bunching figures up). It is the **second-strongest**
+  strategy — well above its fair share in a mixed field and far ahead of the
+  timid `nice`/`random`/`defensive` play — which **validates the guide's core
+  advice (capture + race your leader)**. Yet pure unconditional `mean` still
+  edges it head-to-head, because the guide's defensive refinements cost a little
+  tempo in a game dominated by luck. Both agree that **racing beats spreading**.
 
 ## Layout
 

@@ -66,23 +66,22 @@ def test_defensive_prioritises_entry():
     assert chosen is entry
 
 
-def test_optimal_capture_beats_entry_and_advance():
+def test_optimal_capture_is_top_priority():
     # The composite strategy's top priority is capturing.
     s = GameState()
     rng = random.Random(0)
     s.figures[1][0] = 25  # captured opponent's progress
     capture = Move(figure=0, from_progress=8, to_progress=10, captured=(1, 0))
-    entry = Move(figure=2, from_progress=C.HOME, to_progress=0, is_entry=True)
     advance = Move(figure=1, from_progress=3, to_progress=5)
-    chosen = make_strategy("optimal").choose(s, 0, [capture, entry, advance], rng)
+    chosen = make_strategy("optimal").choose(s, 0, [capture, advance], rng)
     assert chosen is capture
 
 
-def test_optimal_deploys_when_no_capture():
-    # With no capture available, bringing a new figure out comes next.
-    s = GameState()
+def test_optimal_races_leading_figure_when_safe():
+    # With no captures and no threats on the board, race the most-advanced figure.
+    s = GameState()  # all opponents at HOME -> nothing is threatened
     rng = random.Random(0)
-    entry = Move(figure=2, from_progress=C.HOME, to_progress=0, is_entry=True)
-    advance = Move(figure=1, from_progress=3, to_progress=5)
-    chosen = make_strategy("optimal").choose(s, 0, [entry, advance], rng)
-    assert chosen is entry
+    rear = Move(figure=0, from_progress=4, to_progress=6)
+    front = Move(figure=1, from_progress=20, to_progress=22)
+    chosen = make_strategy("optimal").choose(s, 0, [rear, front], rng)
+    assert chosen is front
