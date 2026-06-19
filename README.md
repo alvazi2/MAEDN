@@ -42,6 +42,25 @@ print(analysis.game_length_stats(df))  # avg / median game length
 Each of the four seats is configured independently, so any mix is allowed
 (`["mean", "mean", "nice", "nice"]` for a 2-vs-2 study, etc.).
 
+## Findings
+
+Headline results from `notebooks/research.ipynb`. Exact numbers depend on the
+strategies, seeds and game counts used, so treat these as indicative — re-run the
+notebook to reproduce them.
+
+- **Aggression pays off.** In a four-way game of `mean`, `nice`, `random` and
+  `defensive`, the capturing `mean` strategy wins roughly **half** the games
+  (~48%), while the pacifist `nice` lands near its fair 25% share and the weaker
+  strategies trail. Captures correlate with winning.
+- **Games are long.** A four-player game runs on the order of **~300 turns** on
+  average (a turn = one player's full go), with a long right tail driven by
+  figures being sent home.
+- **First-player advantage is small but real, and strategy-dependent.** With all
+  four seats playing the *same* strategy (to isolate turn order), seat 0 always
+  does best, but the edge over the fair 25% is only ~**+0.1 to +1.8 pp**. It is
+  statistically significant (chi-square) for decisive strategies like `runahead`
+  and `nice`, and negligible for pure-luck `random` play.
+
 ## Layout
 
 ```

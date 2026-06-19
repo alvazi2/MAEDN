@@ -9,7 +9,9 @@ automated **4-player** games to produce statistical research data — average ga
 per strategy (the headline question is *mean vs. nice*), capture counts, and turn-order advantage.
 There is **no interactive/graphical game** and no human player; this is a batch simulation for
 analysis. Reference material: `49324_Mensch_aergere_Dich_nicht_REISE_DE.pdf` (rules) and
-`Mensch_ärgere_dich_nicht_4.svg.png` (board image).
+`Mensch_ärgere_dich_nicht_4.svg.png` (board image). The analyses live in
+`notebooks/research.ipynb`; their headline findings are summarized in `README.md`
+(kept out of this file because results shift with strategies/seeds).
 
 ## Commands
 
