@@ -8,10 +8,17 @@ from maedn.state import GameState
 from maedn.strategies import make_strategy
 
 
-def test_registry_has_all_five():
+def test_registry_has_all_strategies():
     from maedn.strategies import STRATEGIES
 
-    assert set(STRATEGIES) == {"mean", "nice", "random", "runahead", "defensive"}
+    assert set(STRATEGIES) == {
+        "mean",
+        "nice",
+        "random",
+        "runahead",
+        "defensive",
+        "optimal",
+    }
 
 
 def test_mean_prefers_capture():
@@ -56,4 +63,26 @@ def test_defensive_prioritises_entry():
     entry = Move(figure=2, from_progress=C.HOME, to_progress=0, is_entry=True)
     other = Move(figure=0, from_progress=5, to_progress=11)
     chosen = make_strategy("defensive").choose(s, 0, [entry, other], rng)
+    assert chosen is entry
+
+
+def test_optimal_capture_beats_entry_and_advance():
+    # The composite strategy's top priority is capturing.
+    s = GameState()
+    rng = random.Random(0)
+    s.figures[1][0] = 25  # captured opponent's progress
+    capture = Move(figure=0, from_progress=8, to_progress=10, captured=(1, 0))
+    entry = Move(figure=2, from_progress=C.HOME, to_progress=0, is_entry=True)
+    advance = Move(figure=1, from_progress=3, to_progress=5)
+    chosen = make_strategy("optimal").choose(s, 0, [capture, entry, advance], rng)
+    assert chosen is capture
+
+
+def test_optimal_deploys_when_no_capture():
+    # With no capture available, bringing a new figure out comes next.
+    s = GameState()
+    rng = random.Random(0)
+    entry = Move(figure=2, from_progress=C.HOME, to_progress=0, is_entry=True)
+    advance = Move(figure=1, from_progress=3, to_progress=5)
+    chosen = make_strategy("optimal").choose(s, 0, [entry, advance], rng)
     assert chosen is entry

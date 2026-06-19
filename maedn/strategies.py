@@ -141,6 +141,63 @@ class DefensiveStrategy(Strategy):
         return _pick(candidates, lambda m: -m.from_progress, rng)
 
 
+class OptimalStrategy(Strategy):
+    """Composite 'expert' play distilled from popular strategy guides.
+
+    Those guides agree on a handful of priorities -- capture aggressively, get
+    figures out of home for flexibility, keep figures out of danger, and develop
+    all figures evenly rather than racing a single one. This strategy layers them
+    in priority order (the forced enter-on-6 / vacate-A rules are already applied
+    upstream, so this only orders the genuinely free choices):
+
+    1. **Capture** the most-advanced opponent when possible.
+    2. **Deploy** a new figure when bringing one out is an option.
+    3. **Rescue** a currently-threatened figure, preferring a safe destination.
+    4. **Advance** otherwise -- prefer a safe landing square, and break ties by
+       moving the rearmost figure so the group stays spread and flexible.
+
+    It is "optimal" only in the sense of combining the commonly-recommended
+    tactics; it is a heuristic, not a game-theoretic optimum.
+    """
+
+    name = "optimal"
+
+    def choose(self, state, player, candidates, rng):
+        captures = [m for m in candidates if m.is_capture]
+        if captures:
+            return _pick(
+                captures, lambda m: state.figures[m.captured[0]][m.captured[1]], rng
+            )
+
+        entries = [m for m in candidates if m.is_entry]
+        if entries:
+            return rng.choice(entries)
+
+        rescues = [
+            m
+            for m in candidates
+            if m.from_progress != C.HOME
+            and _threatened(state, player, m.from_progress)
+        ]
+        if rescues:
+            return _pick(
+                rescues,
+                lambda m: 0 if _threatened(state, player, m.to_progress) else 1,
+                rng,
+            )
+
+        # Prefer a safe landing; among equally (un)safe moves, advance the
+        # rearmost figure to develop the group evenly.
+        return _pick(
+            candidates,
+            lambda m: (
+                0 if _threatened(state, player, m.to_progress) else 1,
+                -m.from_progress,
+            ),
+            rng,
+        )
+
+
 #: Registry mapping strategy name -> class, for selection by string.
 STRATEGIES: dict[str, type[Strategy]] = {
     cls.name: cls
@@ -150,6 +207,7 @@ STRATEGIES: dict[str, type[Strategy]] = {
         RandomStrategy,
         RunAheadStrategy,
         DefensiveStrategy,
+        OptimalStrategy,
     )
 }
 
